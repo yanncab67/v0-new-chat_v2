@@ -17,30 +17,25 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleLogin = async () => {
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
     setError('')
     setLoading(true)
-
-    if (!email || !password) {
-      setError('Veuillez remplir tous les champs')
-      setLoading(false)
-      return
-    }
 
     try {
       const userData = await signIn(email, password)
 
-      // Rediriger selon le rôle
+      // Redirection selon le rôle avec rechargement complet
       if (userData.role === 'admin') {
-        router.push('/admin')
+        window.location.href = '/admin'
       } else {
-        router.push('/practician') // ⬅️ Changé de /admin/mes-pieces à /practician
+        window.location.href = '/practician'
       }
     } catch (err: any) {
       setError(err.message)
-    } finally {
       setLoading(false)
     }
+    // Ne pas mettre setLoading(false) dans finally car on redirige
   }
 
   const handleSignup = async () => {
@@ -73,7 +68,7 @@ export default function LoginPage() {
       await signUp(email, password, firstName, lastName)
 
       // Connexion automatique après inscription (toujours practician)
-      router.push('/practician') // ⬅️ Changé
+      window.location.href = '/practician' // ⬅️ Changé
     } catch (err: any) {
       setError(err.message)
     } finally {
