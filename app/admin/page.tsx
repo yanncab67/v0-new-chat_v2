@@ -144,7 +144,7 @@ export default function AdminPage() {
           </div>
           <div className="flex gap-3">
             <Button
-              onClick={() => console.log("[v0] Mon compte clicked - page not yet implemented")}
+              onClick={() => router.push("/account")}
               variant="outline"
               className="border-[#8b6d47] text-[#8b6d47] hover:bg-[#8b6d47] hover:text-white"
             >
