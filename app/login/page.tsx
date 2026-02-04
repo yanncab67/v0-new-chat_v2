@@ -1,66 +1,84 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { signUp, signIn } from '@/lib/auth'
 
 export default function LoginPage() {
-  const [mode, setMode] = useState<"login" | "signup">("login")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [error, setError] = useState("")
+  const router = useRouter()
+  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = () => {
-    setError("")
+  const handleLogin = async () => {
+    setError('')
+    setLoading(true)
+
     if (!email || !password) {
-      setError("Veuillez remplir tous les champs")
+      setError('Veuillez remplir tous les champs')
+      setLoading(false)
       return
     }
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]")
-    const user = users.find((u: any) => u.email === email && u.password === password)
+    try {
+      const userData = await signIn(email, password)
 
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user))
-      window.location.href = user.role === "admin" ? "/admin" : "/practician"
-    } else {
-      setError("Identifiants incorrects")
+      // Rediriger selon le rôle
+      if (userData.role === 'admin') {
+        router.push('/admin')
+      } else {
+        router.push('/practician') // ⬅️ Changé de /admin/mes-pieces à /practician
+      }
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleSignup = () => {
-    setError("")
+  const handleSignup = async () => {
+    setError('')
+    setLoading(true)
+
+    // Validations
     if (!email || !password || !confirmPassword || !firstName || !lastName) {
-      setError("Veuillez remplir tous les champs")
+      setError('Veuillez remplir tous les champs')
+      setLoading(false)
       return
     }
-    if (!email.includes("@")) {
-      setError("Veuillez entrer une adresse email valide")
+    if (!email.includes('@')) {
+      setError('Veuillez entrer une adresse email valide')
+      setLoading(false)
       return
     }
     if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas")
+      setError('Les mots de passe ne correspondent pas')
+      setLoading(false)
       return
     }
     if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères")
+      setError('Le mot de passe doit contenir au moins 6 caractères')
+      setLoading(false)
       return
     }
 
-    const users = JSON.parse(localStorage.getItem("users") || "[]")
-    if (users.find((u: any) => u.email === email)) {
-      setError("Cet email est déjà utilisé")
-      return
-    }
+    try {
+      await signUp(email, password, firstName, lastName)
 
-    const newUser = { email, password, role: "user", firstName, lastName }
-    users.push(newUser)
-    localStorage.setItem("users", JSON.stringify(users))
-    localStorage.setItem("user", JSON.stringify(newUser))
-    window.location.href = "/practician"
+      // Connexion automatique après inscription (toujours practician)
+      router.push('/practician') // ⬅️ Changé
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -78,22 +96,26 @@ export default function LoginPage() {
           <div className="flex gap-2 mb-6">
             <Button
               onClick={() => {
-                setMode("login")
-                setError("")
+                setMode('login')
+                setError('')
               }}
               className={`flex-1 ${
-                mode === "login" ? "bg-[#c8623e] text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                mode === 'login'
+                  ? 'bg-[#c8623e] text-white'
+                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
               }`}
             >
               Connexion
             </Button>
             <Button
               onClick={() => {
-                setMode("signup")
-                setError("")
+                setMode('signup')
+                setError('')
               }}
               className={`flex-1 ${
-                mode === "signup" ? "bg-[#c8623e] text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
+                mode === 'signup'
+                  ? 'bg-[#c8623e] text-white'
+                  : 'bg-slate-200 text-slate-700 hover:bg-slate-300'
               }`}
             >
               Créer un compte
@@ -102,7 +124,7 @@ export default function LoginPage() {
 
           {/* Form */}
           <div className="space-y-4 mb-6">
-            {mode === "signup" && (
+            {mode === 'signup' && (
               <>
                 <input
                   type="text"
@@ -110,6 +132,7 @@ export default function LoginPage() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-[#c8623e] focus:outline-none"
+                  disabled={loading}
                 />
                 <input
                   type="text"
@@ -117,6 +140,7 @@ export default function LoginPage() {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-[#c8623e] focus:outline-none"
+                  disabled={loading}
                 />
               </>
             )}
@@ -126,6 +150,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-[#c8623e] focus:outline-none"
+              disabled={loading}
             />
             <input
               type="password"
@@ -133,14 +158,16 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-[#c8623e] focus:outline-none"
+              disabled={loading}
             />
-            {mode === "signup" && (
+            {mode === 'signup' && (
               <input
                 type="password"
                 placeholder="Confirmer le mot de passe"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full px-4 py-2 border-2 border-slate-300 rounded-lg focus:border-[#c8623e] focus:outline-none"
+                disabled={loading}
               />
             )}
           </div>
@@ -149,10 +176,11 @@ export default function LoginPage() {
 
           {/* Submit Button */}
           <Button
-            onClick={mode === "login" ? handleLogin : handleSignup}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold"
+            onClick={mode === 'login' ? handleLogin : handleSignup}
+            disabled={loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {mode === "login" ? "Se connecter" : "Créer un compte"}
+            {loading ? 'Chargement...' : mode === 'login' ? 'Se connecter' : 'Créer un compte'}
           </Button>
         </CardContent>
       </Card>

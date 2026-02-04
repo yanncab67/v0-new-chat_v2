@@ -1,9 +1,8 @@
-"use client"
+'use client'
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { useRouter } from "next/navigation"
-
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { useRouter } from 'next/navigation'
 export default function WelcomePage() {
   const router = useRouter()
 
@@ -22,7 +21,7 @@ export default function WelcomePage() {
           {/* Connect Button */}
           <div className="flex justify-center">
             <Button
-              onClick={() => router.push("/login")}
+              onClick={() => router.push('/login')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-6 text-xl rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all"
             >
               Se connecter
