@@ -118,6 +118,15 @@ export default function AdminPage() {
     }
   }
 
+  const handleDeletePiece = (pieceId: number) => {
+    if (!confirm("Voulez-vous vraiment supprimer cette piece ?")) return
+    
+    const allPieces = JSON.parse(localStorage.getItem("pieces") || "[]")
+    const updatedPieces = allPieces.filter((piece: any) => piece.id !== pieceId)
+    localStorage.setItem("pieces", JSON.stringify(updatedPieces))
+    loadPieces()
+  }
+
   const handleLogout = () => {
     localStorage.removeItem("user")
     router.push("/")
@@ -257,12 +266,19 @@ export default function AdminPage() {
                           <p className="text-sm text-slate-600">Date souhaitée</p>
                           <p className="font-semibold">{new Date(piece.biscuitDate).toLocaleDateString("fr-FR")}</p>
                         </div>
-                        <div>
+                        <div className="flex flex-col gap-2">
                           <Button
                             onClick={() => handleMarkBiscuitComplete(piece.id)}
                             className="w-full bg-green-600 hover:bg-green-700"
                           >
                             Marquer comme cuit
+                          </Button>
+                          <Button
+                            onClick={() => handleDeletePiece(piece.id)}
+                            variant="destructive"
+                            className="w-full"
+                          >
+                            Supprimer
                           </Button>
                         </div>
                       </div>
@@ -357,12 +373,19 @@ export default function AdminPage() {
                           <p className="text-sm text-slate-600">Date souhaitée</p>
                           <p className="font-semibold">{new Date(piece.emaillageDate).toLocaleDateString("fr-FR")}</p>
                         </div>
-                        <div>
+                        <div className="flex flex-col gap-2">
                           <Button
                             onClick={() => handleMarkEmaillageComplete(piece.id)}
                             className="w-full bg-green-600 hover:bg-green-700"
                           >
                             Marquer comme cuit
+                          </Button>
+                          <Button
+                            onClick={() => handleDeletePiece(piece.id)}
+                            variant="destructive"
+                            className="w-full"
+                          >
+                            Supprimer
                           </Button>
                         </div>
                       </div>
@@ -406,9 +429,16 @@ export default function AdminPage() {
                             : "❌ Non demandé"}
                       </p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap items-center">
                       <span className="text-xs bg-slate-100 px-2 py-1 rounded">{piece.temperatureType}</span>
                       <span className="text-xs bg-slate-100 px-2 py-1 rounded">{piece.clayType}</span>
+                      <Button
+                        onClick={() => handleDeletePiece(piece.id)}
+                        variant="destructive"
+                        size="sm"
+                      >
+                        Supprimer
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -447,13 +477,22 @@ export default function AdminPage() {
                         </div>
                       </div>
                       <div>
-                        <p className="text-sm text-green-700 font-semibold">Pièce terminée</p>
+                        <p className="text-sm text-green-700 font-semibold">Piece terminee</p>
                         <p className="text-xs text-slate-600">
                           Biscuit: {new Date(piece.biscuitCompletedDate).toLocaleDateString("fr-FR")}
                         </p>
                         <p className="text-xs text-slate-600">
-                          Émaillage: {new Date(piece.emaillageCompletedDate).toLocaleDateString("fr-FR")}
+                          Emaillage: {new Date(piece.emaillageCompletedDate).toLocaleDateString("fr-FR")}
                         </p>
+                      </div>
+                      <div>
+                        <Button
+                          onClick={() => handleDeletePiece(piece.id)}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          Supprimer
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

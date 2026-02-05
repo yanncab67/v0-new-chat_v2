@@ -126,6 +126,15 @@ export default function AdminMesPiecesPage() {
     loadPieces()
   }
 
+  const handleDeletePiece = (pieceId: number) => {
+    if (!confirm("Voulez-vous vraiment supprimer cette piece ?")) return
+    
+    const allPieces = JSON.parse(localStorage.getItem("pieces") || "[]")
+    const updatedPieces = allPieces.filter((piece: any) => piece.id !== pieceId)
+    localStorage.setItem("pieces", JSON.stringify(updatedPieces))
+    loadPieces()
+  }
+
   const activePieces = pieces.filter((p) => !(p.biscuitCompleted && p.emaillageCompleted))
   const completedPieces = pieces.filter((p) => p.biscuitCompleted && p.emaillageCompleted)
 
@@ -254,13 +263,23 @@ export default function AdminMesPiecesPage() {
               {activePieces.map((piece) => (
                 <Card key={piece.id}>
                   <CardContent className="p-4 space-y-4">
-                    {piece.photo && (
-                      <img
-                        src={piece.photo || "/placeholder.svg"}
-                        alt="Piece"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                    )}
+                    <div className="relative">
+                      {piece.photo && (
+                        <img
+                          src={piece.photo || "/placeholder.svg"}
+                          alt="Piece"
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                      )}
+                      <Button
+                        onClick={() => handleDeletePiece(piece.id)}
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                      >
+                        Supprimer
+                      </Button>
+                    </div>
                     <div className="flex gap-2">
                       <span className="text-xs bg-slate-100 px-2 py-1 rounded">{piece.temperatureType}</span>
                       <span className="text-xs bg-slate-100 px-2 py-1 rounded">{piece.clayType}</span>
@@ -311,13 +330,23 @@ export default function AdminMesPiecesPage() {
               {completedPieces.map((piece) => (
                 <Card key={piece.id} className="bg-green-50 border-l-4 border-green-600">
                   <CardContent className="p-4 space-y-4">
-                    {piece.photo && (
-                      <img
-                        src={piece.photo || "/placeholder.svg"}
-                        alt="Piece"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
-                    )}
+                    <div className="relative">
+                      {piece.photo && (
+                        <img
+                          src={piece.photo || "/placeholder.svg"}
+                          alt="Piece"
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                      )}
+                      <Button
+                        onClick={() => handleDeletePiece(piece.id)}
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                      >
+                        Supprimer
+                      </Button>
+                    </div>
                     <div className="flex gap-2">
                       <span className="text-xs bg-white px-2 py-1 rounded">{piece.temperatureType}</span>
                       <span className="text-xs bg-white px-2 py-1 rounded">{piece.clayType}</span>

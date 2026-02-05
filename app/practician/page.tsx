@@ -129,6 +129,15 @@ export default function PracticianPage() {
     setRequestType(null)
   }
 
+  const handleDeletePiece = (pieceId: number) => {
+    if (!confirm("Voulez-vous vraiment supprimer cette piece ?")) return
+    
+    const allPieces = JSON.parse(localStorage.getItem("pieces") || "[]")
+    const updatedPieces = allPieces.filter((piece: any) => piece.id !== pieceId)
+    localStorage.setItem("pieces", JSON.stringify(updatedPieces))
+    loadPieces(currentUser?.email)
+  }
+
   const handleLogout = () => {
     localStorage.removeItem("user")
     router.push("/")
@@ -313,6 +322,14 @@ export default function PracticianPage() {
                         className="w-full h-48 object-cover"
                       />
                     )}
+                    <Button
+                      onClick={() => handleDeletePiece(piece.id)}
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-2 right-2"
+                    >
+                      Supprimer
+                    </Button>
                   </div>
                   <CardContent className="p-4 space-y-3">
                     <div className="flex gap-2 flex-wrap">
@@ -396,8 +413,16 @@ export default function PracticianPage() {
                         />
                       )}
                       <div className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                        ✓ Terminée
+                        Terminee
                       </div>
+                      <Button
+                        onClick={() => handleDeletePiece(piece.id)}
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 left-2"
+                      >
+                        Supprimer
+                      </Button>
                     </div>
                     <CardContent className="p-4 space-y-3">
                       <div className="flex gap-2 flex-wrap">
